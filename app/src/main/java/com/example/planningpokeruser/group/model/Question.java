@@ -1,6 +1,8 @@
 package com.example.planningpokeruser.group.model;
 
-public class Question {
+import java.io.Serializable;
+
+public class Question implements Serializable {
 
     private String id;
     private String question;
