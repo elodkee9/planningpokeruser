@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,8 +30,6 @@ public class GroupListFragment extends Fragment {
     private static final String TAG = GroupListFragment.class.getName();
 
     private RecyclerView recyclerView;
-    private ImageView addImageView;
-    private EditText groupNameEditText;
     private GroupAdapter groupAdapter;
     private List<Group> list = new ArrayList<>();
     private MainView mainView;
@@ -61,16 +57,6 @@ public class GroupListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        groupNameEditText = view.findViewById(R.id.tv_add_group);
-        addImageView = view.findViewById(R.id.img_add_group);
-
-        addImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addGroup(groupNameEditText.getText().toString());
-            }
-        });
-
         recyclerView = view.findViewById(R.id.recycler_view);
         groupAdapter = new GroupAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
@@ -80,7 +66,7 @@ public class GroupListFragment extends Fragment {
             @Override
             public void onGroupClicked(Group group) {
                 Log.d(TAG, "Group clicked");
-                // TODO mainView.showEditGroup(group);
+                mainView.showGroup(group);
             }
         });
 
@@ -103,11 +89,5 @@ public class GroupListFragment extends Fragment {
                 Log.e(TAG, "onCancelled");
             }
         });
-    }
-
-    private void addGroup(String groupName) {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("groups");
-        ref.child(groupName).setValue("");
     }
 }

@@ -1,12 +1,13 @@
 package com.example.planningpokeruser.group;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.planningpokeruser.MainView;
 import com.example.planningpokeruser.R;
 import com.example.planningpokeruser.group.model.Question;
 import com.google.firebase.database.DataSnapshot;
@@ -37,10 +39,9 @@ public class GroupFragment extends Fragment {
     }
 
     private String groupId;
-    private EditText groupNameEditText;
-    private EditText questionEditText;
-    private ImageView addImageView;
+    private TextView groupNameTextView;
     private RecyclerView recyclerView;
+    private MainView mainView;
     private QuestionAdapter questionAdapter;
     private List<Question> questionList;
 
@@ -51,27 +52,32 @@ public class GroupFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mainView = (MainView) context;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        groupNameEditText = view.findViewById(R.id.et_group_name);
-        questionEditText = view.findViewById(R.id.et_question);
-        addImageView = view.findViewById(R.id.img_add_question);
+        groupNameTextView = view.findViewById(R.id.tv_group_name);
         recyclerView = view.findViewById(R.id.recycler_view_questions);
 
-        if (getArguments() == null) {
-            // New group
-        } else {
-            // Edit group
-            groupId = getArguments().getString("key_id");
-            groupNameEditText.setText(groupId);
-        }
-
+        groupId = getArguments().getString("key_id");
+        groupNameTextView.setText(groupId);
 
         questionList = new ArrayList<>();
         questionAdapter = new QuestionAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(questionAdapter);
+
+        questionAdapter.setListener(new QuestionAdapter.ClickListener() {
+            @Override
+            public void onQuestionClicked(Question question) {
+                mainView.showQuestion(question);
+            }
+        });
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("groups/" + groupId + "/questions");
@@ -94,20 +100,5 @@ public class GroupFragment extends Fragment {
                 Log.d(TAG, "onCancelled");
             }
         });
-
-        addImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addQuestion(questionEditText.getText().toString());
-                questionEditText.setText("");
-            }
-        });
-    }
-
-    private void addQuestion(String question) {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("groups/" + groupId + "/questions");
-        String key = ref.push().getKey();
-        ref.child(key).setValue(question);
     }
 }
