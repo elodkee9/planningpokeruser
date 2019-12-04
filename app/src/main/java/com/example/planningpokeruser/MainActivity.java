@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Override
     public void showGroup(Group group) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, GroupFragment.newInstance(group.getId()), "group")
+                .replace(R.id.container, GroupFragment.newInstance(group.getId()), "")
                 .addToBackStack(null)
                 .commit();
     }
@@ -41,14 +41,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Override
     public void showQuestion(Question question) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, QuestionFragment.newInstance(question), "question")
+                .replace(R.id.container, QuestionFragment.newInstance(question), "")
                 .addToBackStack(null)
                 .commit();
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        getSupportFragmentManager().popBackStack();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
